@@ -25,8 +25,8 @@ export default function Login({ navigation }) {
     }, []);
 
     async function verifyCredentials(){
-        const account = JSON.parse(await AsyncStorage.getItem('account'));
         const token = await AsyncStorage.getItem('token');
+        const account = await AsyncStorage.getItem('account');
 
         if(account && token){
             navigation.navigate('Main', {account});
@@ -40,10 +40,11 @@ export default function Login({ navigation }) {
                 password
             });
     
-            const { account, token } = response.data;
+            const { token } = response.data;
+            const account = JSON.stringify(response.data.account);
 
-            await AsyncStorage.setItem('token', token)
-            await AsyncStorage.setItem('account', JSON.stringify(account))
+            await AsyncStorage.setItem('token', token);
+            await AsyncStorage.setItem('account', account);
     
             navigation.navigate('Main', {account});
         }catch(error){
