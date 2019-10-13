@@ -5,6 +5,8 @@ import background from '../assets/backImage.jpg';
 import api from '../services/api';
 import imgCancel from '../assets/cancel.png';
 import imgLike from '../assets/likeYellow.png';
+import imgLogout from '../assets/logout.png';
+import { logout } from '../services/auth';
 
 export default function Main({ navigation }) {
     const account = JSON.parse(navigation.getParam('account'));
@@ -32,27 +34,31 @@ export default function Main({ navigation }) {
         }
 
         loadUsers();
-    }, [account]);
+    }, [account._id]);
 
-    async function handleLike(id) {
-        await api.post(`/devs/${id}/likes`, null, {
+    async function handleLike() {
+        const [firstUser, ...rest] = users;
+
+        await api.post(`/devs/${firstUser._id}/likes`, null, {
             headers: {user: account._id}
         });
 
-        setUsers(users.filter(user => user._id !== id));
+        setUsers(rest);
     }
 
-    async function handleDislike(id) {
-        await api.post(`/devs/${id}/dislikes`, null, {
+    async function handleDislike() {
+        const [firstUser, ...rest] = users;
+
+        await api.post(`/devs/${firstUser._id}/dislikes`, null, {
             headers: {user: account._id}
         });
 
-        setUsers(users.filter(user => user._id !== id));
+        setUsers(rest);
     }
 
     async function logoutFunction() {
         logout();
-        history.push(`/`);
+        navigation.navigate('Login');
     }
 
     return (
@@ -76,17 +82,23 @@ export default function Main({ navigation }) {
                         ))
                     )}
                 </View>
-
-                <View style={styles.buttonsContainer}>
-                    <TouchableOpacity style={styles.button}>
+                { users.length > 0 && (
+                    <View style={styles.buttonsContainer}>
+                    <TouchableOpacity onPress={handleDislike} style={styles.button}>
                         <Image source={imgCancel}/>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity onPress={handleLike} style={styles.button}>
                         <Image source={imgLike}/>
                     </TouchableOpacity>
                 </View>
+                )}
             </View>
             <ImageBackground source={background} style={styles.backgroundImg}></ImageBackground>
+            <View style={styles.logoutView}>
+                <TouchableOpacity onPress={logoutFunction} style={styles.logoutButton}>
+                    <Image source={imgLogout}/>
+                </TouchableOpacity>
+            </View>
         </View>
     )
 }
@@ -187,5 +199,16 @@ const styles = StyleSheet.create({
         color: '#999',
         fontSize: 24,
         fontWeight: 'bold',
+    },
+
+    logoutView: {
+        position: 'absolute',
+        right: 10,
+        bottom: 10,
+    },
+
+    logoutButton: {
+        maxHeight: 80,
+        maxWidth: 80,
     },
 });

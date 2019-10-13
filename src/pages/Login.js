@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-community/async-storage';
 import { 
     KeyboardAvoidingView,
     View,
@@ -15,6 +14,7 @@ import {
 import logo from '../assets/logo.png';
 import background from '../assets/backImage.jpg';
 import api from '../services/api';
+import { getAccount, getToken, setAccount, setToken } from '../services/auth';
 
 export default function Login({ navigation }) {
     const [user, setUser] = useState('');
@@ -25,8 +25,8 @@ export default function Login({ navigation }) {
     }, []);
 
     async function verifyCredentials(){
-        const token = await AsyncStorage.getItem('token');
-        const account = await AsyncStorage.getItem('account');
+        const token = await getToken();
+        const account = await getAccount();
 
         if(account && token){
             navigation.navigate('Main', {account});
@@ -43,8 +43,8 @@ export default function Login({ navigation }) {
             const { token } = response.data;
             const account = JSON.stringify(response.data.account);
 
-            await AsyncStorage.setItem('token', token);
-            await AsyncStorage.setItem('account', account);
+            await setToken(token);
+            await setAccount(account);
     
             navigation.navigate('Main', {account});
         }catch(error){
