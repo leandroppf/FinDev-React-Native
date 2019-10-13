@@ -12,7 +12,6 @@ export default function Main({ navigation }) {
     const account = JSON.parse(navigation.getParam('account'));
     const [users, setUsers] = useState([]);
 
-
     useEffect(() => {
         async function loadUsers(){
             try{
@@ -64,8 +63,31 @@ export default function Main({ navigation }) {
     return (
         <View style={styles.container}>
             <View style={styles.paddingView}>
-                <View>
-
+                <View style={{height: 150}}/>
+                <View style={styles.topView}>
+                    <View style={styles.infoView}>
+                        <Image style={styles.accountImg} source={{ uri: account.avatar}}/>
+                        <Text style={styles.name}>{account.name}</Text>
+                    </View>
+                    <View style={styles.topButtonsView}>
+                        <TouchableOpacity style={styles.topButton}>
+                            <Text style={styles.buttonText}>
+                                Sem interesse
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.topButton}>
+                            <Text style={styles.buttonText}>
+                                Curtidas
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.matchButtonView}>
+                        <TouchableOpacity style={styles.matchButton}>
+                            <Text style={styles.buttonText}>
+                                Combinações
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
                 <View style={styles.cardsContainer}>
                     { users.length === 0 
@@ -116,7 +138,7 @@ const styles = StyleSheet.create({
         height: '100%',
         position: 'absolute',
         zIndex: -1,
-        opacity: 0.09,
+        opacity: 0.2,
     },
 
     paddingView: {
@@ -210,5 +232,69 @@ const styles = StyleSheet.create({
     logoutButton: {
         maxHeight: 80,
         maxWidth: 80,
+    },
+
+    topView: {
+        maxHeight: 150,
+        alignSelf: 'stretch',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+    },
+
+    infoView: {
+        backgroundColor: '#FFF',
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10,
+        borderRadius: 5,
+        opacity: 0.9,
+    },
+
+    accountImg: {
+        width: 70,
+        height: 70,
+        marginRight: 20,
+        borderRadius: 5,
+    },
+
+    topButtonsView: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 5,
+    },
+
+    topButton: {
+        borderRadius: 3,
+        height: 35,
+        backgroundColor: '#290A59',
+        margin: 5,
+        minWidth: '35%',
+        paddingHorizontal: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    buttonText: {
+        color: '#FFF',
+    },
+
+    matchButtonView: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 5,
+    },
+
+    matchButton: {
+        borderRadius: 3,
+        height: 35,
+        backgroundColor: '#ff7c00',
+        margin: 5,
+        minWidth: '73%',
+        paddingHorizontal: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
