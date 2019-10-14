@@ -57,6 +57,14 @@ export default function Login({ navigation }) {
         }
     }
 
+    function navigateSignUp(){
+        navigation.navigate('SignUp');
+    }
+
+    function navigateForgotPass(){
+        navigation.navigate('ForgotPass');
+    }
+
     return (
         <KeyboardAvoidingView
             behavior="padding"
@@ -90,7 +98,7 @@ export default function Login({ navigation }) {
                         Entrar
                     </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.buttonForgotPass}>
+                <TouchableOpacity onPress={navigateForgotPass} style={styles.buttonForgotPass}>
                     <Text style={styles.textForgotPass}>
                         Esqueceu a sua senha?
                     </Text>
@@ -98,7 +106,7 @@ export default function Login({ navigation }) {
 
                 <View style={styles.createAccountView}>
                     <Text style={styles.textSignupNormal}>Não tem uma conta? </Text>
-                    <TouchableOpacity style={styles.buttonSignup}>
+                    <TouchableOpacity onPress={navigateSignUp} style={styles.buttonSignup}>
                         <Text style={styles.textSignup}>
                             Crie uma
                         </Text>

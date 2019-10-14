@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ImageBackground, Image, Text, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ImageBackground, Image, Text, TouchableOpacity, ScrollView } from 'react-native';
 
 import background from '../assets/backImage.jpg';
 import api from '../services/api';
-import imgCancel from '../assets/cancel.png';
-import imgLike from '../assets/likeYellow.png';
+import imgRevert from '../assets/revert.png';
 import imgLogout from '../assets/logout.png';
 import { logout, getAccount } from '../services/auth';
 
@@ -15,7 +14,7 @@ export default function Main({ navigation }) {
     useEffect(() => {
         async function loadUsers(){
             try{
-                const response = await api.get('/devs', {
+                const response = await api.get('/dislikes', {
                     headers: {
                         user: account._id
                     }
@@ -35,35 +34,23 @@ export default function Main({ navigation }) {
         loadUsers();
     }, [account._id]);
 
-    async function handleLike() {
-        const [firstUser, ...rest] = users;
-
-        await api.post(`/devs/${firstUser._id}/likes`, null, {
+    async function handleRemoveDislike(id) {
+        await api.delete(`/devs/${id}/removeDislike`, {
             headers: {user: account._id}
         });
 
-        setUsers(rest);
+        setUsers(users.filter(user => user._id !== id));
     }
 
-    async function handleDislike() {
-        const [firstUser, ...rest] = users;
-
-        await api.post(`/devs/${firstUser._id}/dislikes`, null, {
-            headers: {user: account._id}
-        });
-
-        setUsers(rest);
-    }
-
-    async function logoutFunction() {
+    async function logoutFunction(){
         logout();
         navigation.navigate('Login');
     }
 
-    async function navigateDislikes(){
+    async function navigateMain(){
         const accToPass = await getAccount();
 
-        navigation.navigate('Dislikes', {account:accToPass});
+        navigation.navigate('Main', {account:accToPass});
     }
 
     async function navigateLikes(){
@@ -88,9 +75,9 @@ export default function Main({ navigation }) {
                         <Text style={styles.name}>{account.name}</Text>
                     </View>
                     <View style={styles.topButtonsView}>
-                        <TouchableOpacity onPress={navigateDislikes} style={styles.topButton}>
+                        <TouchableOpacity onPress={navigateMain} style={styles.topButton}>
                             <Text style={styles.buttonText}>
-                                Sem interesse
+                                Inicio
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={navigateLikes} style={styles.topButton}>
@@ -107,31 +94,28 @@ export default function Main({ navigation }) {
                         </TouchableOpacity>
                     </View>
                 </View>
-                <View style={styles.cardsContainer}>
+                <ScrollView 
+                    style={styles.cardsContainer}
+                    scrollEnabled={true}
+                    persistentScrollbar={true}
+                >
                     { users.length === 0 
                     ? <Text style={styles.empty}>Ainda não existem mais usuários para interagir.</Text>
                     : (
-                        users.map((user, index) => (
-                            <View key={user._id} style={[styles.card, { zIndex: users.length - index }]}>
+                        users.map((user) => (
+                            <View key={user._id} style={styles.card}>
                                 <Image style={styles.avatar} source={{uri: user.avatar}}/>
                                 <View style={styles.footer}>
                                     <Text style={styles.name}>{user.name}</Text>
                                     <Text style={styles.bio} numberOfLines={3}>{user.bio}</Text>
+                                    <TouchableOpacity onPress={() => handleRemoveDislike(user._id)} style={styles.button}>
+                                        <Image source={imgRevert}/>
+                                    </TouchableOpacity>
                                 </View>
                             </View>
                         ))
                     )}
-                </View>
-                { users.length > 0 && (
-                    <View style={styles.buttonsContainer}>
-                    <TouchableOpacity onPress={handleDislike} style={styles.button}>
-                        <Image source={imgCancel}/>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleLike} style={styles.button}>
-                        <Image source={imgLike}/>
-                    </TouchableOpacity>
-                </View>
-                )}
+                </ScrollView>
             </View>
             <ImageBackground source={background} style={styles.backgroundImg}></ImageBackground>
             <View style={styles.logoutView}>
@@ -170,8 +154,9 @@ const styles = StyleSheet.create({
     cardsContainer: {
         flex: 1,
         alignSelf: 'stretch',
-        justifyContent: 'center',
         maxHeight: 500,
+        backgroundColor: '#FFF',
+        borderRadius: 5,
     },
 
     card: {
@@ -180,7 +165,6 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         margin: 30,
         overflow: 'hidden',
-        position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
