@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
+import io from 'socket.io-client';
 import { View, StyleSheet, ImageBackground, Image, Text, TouchableOpacity, ScrollView } from 'react-native';
+import baseUrl from '../config/config';
 
 import background from '../assets/backImage.jpg';
 import api from '../services/api';
 import imgLogout from '../assets/logout.png';
+import matchImg from '../assets/match.png';
 import { logout, getAccount } from '../services/auth';
 
 export default function Main({ navigation }) {
     const account = JSON.parse(navigation.getParam('account'));
     const [users, setUsers] = useState([]);
+
+    const [matchDev, setMatchDev] = useState(null);
 
     useEffect(() => {
         async function loadUsers(){
@@ -31,6 +36,17 @@ export default function Main({ navigation }) {
         }
 
         loadUsers();
+    }, [account._id]);
+
+    useEffect(() => {
+        const socket = io(baseUrl, {
+            query: { user: account._id}
+        });
+
+        socket.on('match', dev => {
+            setMatchDev(dev);
+        });
+        
     }, [account._id]);
 
     async function logoutFunction(){
@@ -113,6 +129,19 @@ export default function Main({ navigation }) {
                     <Image source={imgLogout}/>
                 </TouchableOpacity>
             </View>
+            { matchDev && (
+                <View style={styles.matchContainer}>
+                    <Image style={styles.matchImage} source={matchImg}/>
+                    <Text style={styles.matchTitleText}>Parabéns!!!</Text>
+                    <Text style={styles.matchTitleText}>Você obteve uma combinação com</Text>
+                    <Image style={styles.matchAvatar} source={{ uri: matchDev.avatar }}/>
+                    <Text style={styles.matchName}>{matchDev.name}</Text>
+                    <Text style={styles.matchBio}>{matchDev.bio}</Text>
+                    <TouchableOpacity onPress={() => setMatchDev(null)}>
+                        <Text style={styles.closeMatch}>Fechar</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
         </View>
     )
 }
@@ -147,6 +176,7 @@ const styles = StyleSheet.create({
         maxHeight: 500,
         backgroundColor: '#FFF',
         borderRadius: 5,
+        zIndex: 1,
     },
 
     card: {
@@ -288,5 +318,56 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+
+    matchContainer: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        zIndex: 999,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    matchImage: {
+        height: 80,
+        resizeMode: 'contain',
+    },
+
+    matchTitleText: {
+        color: '#FFF',
+        fontSize: 16,
+    },
+
+    matchAvatar: {
+        width: 160,
+        height: 160,
+        borderRadius: 80,
+        borderWidth: 5,
+        borderColor: '#FFF',
+        marginTop: 10,
+        marginBottom: 30,
+    },
+
+    matchName: {
+        fontSize: 26,
+        fontWeight: 'bold',
+        color: '#FFF',
+    },
+
+    matchBio: {
+        marginTop: 10,
+        fontSize: 14,
+        color: 'rgba(255, 255, 255, 0.8)',
+        lineHeight: 24,
+        textAlign: 'center',
+        paddingHorizontal: 30,
+    },
+
+    closeMatch: {
+        fontSize: 16,
+        color: 'rgba(255, 255, 255, 0.8)',
+        textAlign: 'center',
+        marginTop: 30,
+        fontWeight: 'bold',
     },
 });
