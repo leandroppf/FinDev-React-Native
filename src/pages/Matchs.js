@@ -249,6 +249,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 10,
         bottom: 10,
+        zIndex: 999,
     },
 
     logoutButton: {

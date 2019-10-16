@@ -2,7 +2,8 @@ import React from 'react';
 import { YellowBox } from 'react-native';
 
 YellowBox.ignoreWarnings([
-  'Unrecognized WebSocket'
+  'Unrecognized WebSocket',
+  'Cannot record touch'
 ]);
 
 import Routes from './routes';
